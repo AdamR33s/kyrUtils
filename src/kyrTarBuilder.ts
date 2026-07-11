@@ -62,17 +62,14 @@ export function buildTar(buildTarOptions: TarBuildOptions): Promise<void> {
 
   if (buildTarOptions.dataDir !== undefined) {
     const dataFiles = walkDir(buildTarOptions.dataDir, (path, dirEnt) => {
-      if (
-        !dirEnt.name.toLowerCase().endsWith(`.yml`) ||
-        !dirEnt.name.toLowerCase().endsWith(`.yaml`) ||
-        !dirEnt.name.toLowerCase().endsWith(`.json`) ||
-        !dirEnt.name.toLowerCase().endsWith(`.xml`) ||
-        !dirEnt.name.toLowerCase().endsWith(`.ini`) ||
-        !dirEnt.name.toLowerCase().endsWith(`.csv`)
-      ) {
-        return false;
-      }
-      return true;
+      return (
+        dirEnt.name.toLowerCase().endsWith(`.yml`) ||
+        dirEnt.name.toLowerCase().endsWith(`.yaml`) ||
+        dirEnt.name.toLowerCase().endsWith(`.json`) ||
+        dirEnt.name.toLowerCase().endsWith(`.xml`) ||
+        dirEnt.name.toLowerCase().endsWith(`.ini`) ||
+        dirEnt.name.toLowerCase().endsWith(`.csv`)
+      );
     });
     for (const filePath of dataFiles) {
       const fileName = path.relative(buildTarOptions.dataDir, filePath);

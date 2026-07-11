@@ -130,3 +130,6 @@ Return a filesystem-friendly date-stamp ("en-gb") from a String | Number | Date
 
 ### kyrUtils v2.1.0
 - Removed projFiles collection (move package files to dist through your script!)
+
+### kyrUtils v2.1.1
+- Fix an issue with files in dataDir being filtered out incorrectly
