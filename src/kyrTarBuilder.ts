@@ -6,18 +6,23 @@ import fs from "fs";
 import path from "path";
 
 /**
- * The options object for config of 'buildTar'
+ * The options object for config of 'buildTar'.
+ * @param overrideEnv Collect any .env file from the project base dir.
+ * @param distDir Suggested dir for main dist files.
+ * @param dataDir Suggested additional dir for static project data files such as yaml, json, xml etc.
+ * @param prismaDir Suggested additional dir for static prisma data files such as schema and migrations folder.
+ * @param webServerDir Suggested additional dir for App WebServer files templates, static resources etc.
+ * @param additionalDirs List any extra dirs for filterless collection of everything contained.
  */
 export type TarBuildOptions = {
   overrideEnv: boolean;
+  distDir?: string;
   dataDir?: string;
   prismaDir?: string;
   webServerDir?: string;
   additionalDirs?: string[];
 };
 
-const baseDir = "./";
-const distDir = "./dist";
 const sudoArchDir = "./sudoTarZst";
 
 function walkDir(
@@ -40,24 +45,22 @@ function walkDir(
 
 /**
  * Build a .tar and .tar.zst archive for "typical" npm/node projects for server uploads (suggested project structure found in readme.md). Use the 'TarBuildOptions' class to walk a list of dirs (some preset, and an optional list arguement). The /dist directory will be walked and collected indiscriminately
- * @param overrideEnv Collect any .env file from the project base dir
- * @param dataDir Suggested additional dir for static project data files such as yaml, json, xml etc.
- * @param prismaDir Suggested additional dir for static prisma data files such as schema and migrations folder
- * @param webServerDir Suggested additional dir for static WebServer data files such as css, templates etc.
- * @param additionalDirs List any extra dirs for filterless collection of everything contained
-
- * @returns Void - A .tar and a .tar.zst will be written into the base project dir as `project.tar` & `project.tar.zst` respectively
+ * @param buildTarOptions - TarBuildOptions Object for config.
+ * @returns Void, (a .tar and a .tar.zst will be written into the base project dir as `project.tar` & `project.tar.zst` respectively).
  */
 export function buildTar(buildTarOptions: TarBuildOptions): Promise<void> {
   fs.rmSync(sudoArchDir, { recursive: true, force: true });
   fs.mkdirSync(sudoArchDir, { recursive: true });
-  const distFiles = walkDir(distDir, (path, dirEnt) => {
-    return true;
-  });
-  for (const filePath of distFiles) {
-    const fileName = path.relative(distDir, filePath);
-    const targetPath = path.join(sudoArchDir, fileName);
-    fs.cpSync(filePath, targetPath);
+
+  if (buildTarOptions.distDir !== undefined) {
+    const distFiles = walkDir(buildTarOptions.distDir, (path, dirEnt) => {
+      return true;
+    });
+    for (const filePath of distFiles) {
+      const fileName = path.relative(buildTarOptions.distDir, filePath);
+      const targetPath = path.join(sudoArchDir, fileName);
+      fs.cpSync(filePath, targetPath);
+    }
   }
 
   if (buildTarOptions.dataDir !== undefined) {
@@ -105,7 +108,7 @@ export function buildTar(buildTarOptions: TarBuildOptions): Promise<void> {
     for (const dir of buildTarOptions.additionalDirs) {
       const additionalCollection = walkDir(dir);
       for (const filePath of additionalCollection) {
-        const sectionFileName = path.relative(baseDir, filePath);
+        const sectionFileName = path.relative(dir, filePath);
         const targetPath = path.join(sudoArchDir, sectionFileName);
         fs.cpSync(filePath, targetPath);
       }

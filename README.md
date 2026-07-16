@@ -1,20 +1,19 @@
 # KYR Utils
 This library contains a number of "utility" functions used in KYR projects. Please feel free to use!
 
-I've listed the functions available and their general usage below.
-
 
 ### buildTar()
-This builder function is used to walk relevant (and optional) project directories, collecting project files into a .tar.zst archive. 
+This builder function is used to walk optional project directories, collecting files into a .tar.zst archive. 
 
-This script assumes it will be executed from inside the `./dist` folder of your project. Use the `TarBuildOptions` class in your build script to control config. Some of the preset directory options have filters in place, there's also room for additional directories to be walked indiscriminately.
+Use the `TarBuildOptions` class in your build script to control config. Some of the preset directory options have filters in place, there's also room for additional directories to be walked indiscriminately.
 ```text
 FILTERS
-The `./dist` directory walker has no filters and will walk and collect everything from all directories in this list. (Copy package files here)
-The optional Data directory walker will filter any ( .yml | .yaml | .json | .xml | .ini | .csv ) files.
-The optional Prisma directory walker will only select files with the .prisma extension.
-The optional WebServer directory walker will ignore any files ending with `*.ts` - This is to walk and collect all templates, static resources and css files.
-The optional Additional directory walker has no filters and will walk and collect everything from all directories in this list.
+The 'overrideEnv' directory walker will grab .env config files from the root of the project.
+The 'distDir' directory walker will collect everything indiscriminately.
+The 'dataDir' directory walker will filter any ( .yml | .yaml | .json | .xml | .ini | .csv ) files.
+The 'prismaDir' directory walker will collect everything indiscriminately.
+The 'webServerDir' directory walker will ignore any files ending with `*.ts` to collect all templates, static resources etc.
+The 'additionalDirs' directory walker will collect everything indiscriminately from the list of dir's provided.
 ```
 
 ### BuildTarOptions
@@ -22,6 +21,7 @@ This object is built and then passed as an argument to the `buildTar()` function
 ```cs
 export type TarBuildOptions = {
   overrideEnv: boolean;
+  distDir?: string;
   dataDir?: string;
   prismaDir?: string;
   webServerDir?: string;
@@ -30,15 +30,16 @@ export type TarBuildOptions = {
 ```
 
 #### Tar(Zst)Builder - Project Structure
-Following this structure will allow you to import and use the buildTar() utility for rapid server deployment via a .tar.zst archive.
+Loose suggested structure to use the buildTar() utility for rapid server deployment via a .tar.zst archive.
 ```text
 STRUCTURE
 projectRoot:                    ./
-projectRoot/.env ->             .env config files. *OPTIONAL*
-projectRoot/data ->             Static datafiles for apps (YAML / JSON etc.) *OPTIONAL*
-projectRoot/prisma ->           Static prisma files for ORM usage (schema etc.) *OPTIONAL*
+projectRoot/.env ->             .env config files. 
+prjectRoot/dist ->              Compiled/bundled files
+projectRoot/data ->             Static datafiles for apps (YAML / JSON etc.)
+projectRoot/prisma ->           Static prisma files for ORM usage (schema etc.)
 projectRoot/src ->              Local deploy script (imports tarBuild() and compiles to `./dist`) & project TS files
-projectRoot/src/webServer ->    Webserver.ts files, /views directory, /static directory  *OPTIONAL*
+projectRoot/webServer ->        Webserver.ts files, /views directory, /static directory
 ```
 
 ### getRandUUID()
@@ -65,9 +66,10 @@ Return a UI-friendly date-stamp ("en-gb") from a String | Number | Date
 ### dateTimeFSString()
 Return a filesystem-friendly date-stamp ("en-gb") from a String | Number | Date
 
+# LATEST UPDATE
+V3.0.0 - I've removed the fixed dir options for dist and made this optional like the others. You can now use this for partial deployments as well as full applications. I've also updated the function and object notes so they are clearer.
 
-
-# VERSION NOTES
+# PREVIOUS VERSION NOTES
 
 ### kyrUtils v1.0.0
 - Project Tar Building working for S.C.a.R.S and CM
@@ -133,3 +135,7 @@ Return a filesystem-friendly date-stamp ("en-gb") from a String | Number | Date
 
 ### kyrUtils v2.1.1
 - Fix an issue with files in dataDir being filtered out incorrectly
+
+### kyrUtils v3.0.0
+- Dist folder now optional and dir adjustable
+- allows custom/part deployment scripts
