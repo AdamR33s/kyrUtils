@@ -108,8 +108,7 @@ export function buildTar(buildTarOptions: TarBuildOptions): Promise<void> {
     for (const dir of buildTarOptions.additionalDirs) {
       const additionalCollection = walkDir(dir);
       for (const filePath of additionalCollection) {
-        const sectionFileName = path.relative(dir, filePath);
-        const targetPath = path.join(sudoArchDir, sectionFileName);
+        const targetPath = path.join(sudoArchDir, filePath);
         fs.cpSync(filePath, targetPath);
       }
     }

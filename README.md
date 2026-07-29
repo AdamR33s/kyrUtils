@@ -139,3 +139,6 @@ V3.0.0 - I've removed the fixed dir options for dist and made this optional like
 ### kyrUtils v3.0.0
 - Dist folder now optional and dir adjustable
 - allows custom/part deployment scripts
+
+### kyrUtils v3.0.1
+- adjusted the collection for additional dirs to preserve parent folder provided in path when building the archive
